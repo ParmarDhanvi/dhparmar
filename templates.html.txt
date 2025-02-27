@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Marketing Assistant</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        #container { max-width: 600px; margin: auto; }
+        .box { border: 1px solid #ccc; padding: 15px; margin: 10px; border-radius: 8px; }
+        .chat-box { height: 300px; overflow-y: auto; padding: 10px; background: #f9f9f9; }
+        .message { padding: 8px; margin: 5px; border-radius: 5px; }
+        .user { background-color: #007bff; color: white; text-align: right; }
+        .bot { background-color: #e5e5e5; text-align: left; }
+        input, button { margin-top: 10px; padding: 10px; width: 90%; }
+    </style>
+</head>
+<body>
+    <h1>AI Marketing Assistant</h1>
+
+    <div id="container">
+        <div class="box">
+            <h2>Generate Marketing Copy</h2>
+            <input type="text" id="product-input" placeholder="Enter product/service...">
+            <button onclick="generateMarketingCopy()">Generate</button>
+            <p id="marketing-response">Your AI-generated marketing copy will appear here.</p>
+        </div>
+
+        <div class="box">
+            <h2>Chat with AI</h2>
+            <div class="chat-box" id="chat-box"></div>
+            <input type="text" id="chat-input" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function generateMarketingCopy() {
+            let userInput = document.getElementById("product-input").value;
+            if (!userInput) return;
+
+            let response = await fetch("/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ input: userInput })
+            });
+
+            let data = await response.json();
+            document.getElementById("marketing-response").innerText = data.response;
+        }
+
+        async function sendMessage() {
+            let userInput = document.getElementById("chat-input").value;
+            if (!userInput) return;
+
+            let chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<div class="message user">${userInput}</div>`;
+
+            document.getElementById("chat-input").value = "";
+
+            let response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userInput })
+            });
+
+            let data = await response.json();
+            chatBox.innerHTML += `<div class="message bot">${data.response}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
